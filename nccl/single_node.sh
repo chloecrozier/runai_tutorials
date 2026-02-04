@@ -1,17 +1,18 @@
 ## 4 GPUs in a single node
-runai training mpi submit nccl-single-node \
+## Uses standard training job (simpler resource allocation)
+
+# Step 1: Submit the job
+runai training submit nccl-single-node \
   -p nccl-benchmarking \
-  -i nvcr.io/nvidia/pytorch:25.08-py3 \
+  -i nvcr.io/nvidia/pytorch:25.01-py3 \
   -g 4 \
-  --workers 1 \
-  --slots-per-worker 4 \
   --node-pools default \
-  --master-command "bash" \
-  --master-args "-c 'sleep 1d'" \
   -- bash -c 'sleep 1d'
 
-runai training mpi exec nccl-single-node -p nccl-benchmarking -it -- bash
+# Step 2: Exec into the pod
+runai training exec nccl-single-node -p nccl-benchmarking -it -- bash
 
+# Step 3: Run inside the container
 mpirun -np 4 \
   --allow-run-as-root \
   -x NCCL_DEBUG=INFO \

@@ -9,3 +9,11 @@ runai training mpi submit nccl-test \
   --master-command "bash" \
   --master-args "-c 'sleep 1d'" \
   -- bash -c 'sleep 1d'
+
+
+  runai training submit nccl-single-node \
+  -p nccl-benchmarking \
+  -i nvcr.io/nvidia/pytorch:26.01-py3 \
+  -g 4 \
+  --node-pools default \
+  -- bash -c 'sleep 1d'

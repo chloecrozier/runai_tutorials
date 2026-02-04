@@ -1,7 +1,9 @@
 ## 12 GPUs across 3 nodes in multiple racks
+
+# Step 1: Submit the job
 runai training mpi submit nccl-across-racks \
   -p nccl-benchmarking \
-  -i nvcr.io/nvidia/pytorch:25.08-py3 \
+  -i nvcr.io/nvidia/pytorch:25.01-py3 \
   -g 4 \
   --workers 3 \
   --slots-per-worker 4 \
@@ -10,8 +12,10 @@ runai training mpi submit nccl-across-racks \
   --master-args "-c 'sleep 1d'" \
   -- bash -c 'sleep 1d'
 
-runai training mpi exec nccl-across-racks -p nccl-benchmarking -it -- bash
+# Step 2: Exec into the worker pod
+runai training mpi exec nccl-across-racks -p nccl-benchmarking --pod nccl-across-racks-worker-0 -it -- bash
 
+# Step 3: Run inside the container
 mpirun -np 12 \
   --allow-run-as-root \
   -x NCCL_DEBUG=INFO \

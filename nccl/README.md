@@ -4,9 +4,21 @@ Simple guide for running NCCL tests with RunAI CLI.
 
 ## Setup
 
+List available projects:
+```bash
+runai project list
+```
+
 Set your project:
 ```bash
 runai project set nccl-benchmarking
+```
+
+## Check Running Workloads
+
+List all running workloads in the current project:
+```bash
+runai workload list
 ```
 
 ## Check Available GPUs
