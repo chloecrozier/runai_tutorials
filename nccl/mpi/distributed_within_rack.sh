@@ -1,24 +1,36 @@
-# create the workload
-runai training submit nccl-single-node \
+# 2-node, 8-GPU NCCL test (4 GPUs per node, nodes within same rack)
+# launcher = orchestrator (no GPUs), workers = compute nodes
+# --workers 2 = 2 compute nodes x 4 GPUs = 8 GPUs total
+runai training mpi submit nccl-within-rack \
   -p nccl-benchmarking \
-  -i nvcr.io/nvidia/pytorch:26.01-py3 \
+  -i nvcr.io/r2kuatviomfd/runai-nccl-pytorch-26.01:latest \
   -g 4 \
+  --workers 2 \
+  --slots-per-worker 4 \
+  --large-shm \
+  --capability IPC_LOCK \
   --node-pools default \
   -- bash -c 'sleep 1d'
 
-# after creating the workload, you can run
-runai training standard describe nccl-single-node
+# check status
+runai training mpi describe nccl-within-rack -p nccl-benchmarking
 
-# exec into the pod
-runai training exec nccl-single-node -p nccl-benchmarking -it -- bash
+# exec into the launcher pod
+runai training mpi exec nccl-within-rack -p nccl-benchmarking -it -- bash
 
-# 4‑GPU NCCL all‑reduce bandwidth/latency benchmark with debug logging
-# parameters: min/max bytes = 8-1G; size multiplier = 2; GPUs per rank = 1; warmup iters = 2; measured iters = 10; validation checks = 10 
-mpirun -np 4 \
-  --allow-run-as-root \
+# test SSH to workers (should print hostnames)
+cat /etc/mpi/hostfile
+ssh $(sed -n '1p' /etc/mpi/hostfile | awk '{print $1}') hostname
+ssh $(sed -n '2p' /etc/mpi/hostfile | awk '{print $1}') hostname
+
+# 8-GPU all-reduce benchmark via mpirun
+mpirun --allow-run-as-root \
+  --hostfile /etc/mpi/hostfile \
+  -np 8 \
   -x NCCL_DEBUG=INFO \
-  /usr/local/bin/all_reduce_perf_mpi \
-  -b 8 -e 1G -f 2 -g 1 -w 2 --iters 10 -c 10
+  -x NCCL_MNNVL_ENABLE=0 \
+  -x NCCL_CUMEM_ENABLE=0 \
+  all_reduce_perf_mpi -b 8 -e 1G -f 2 -g 1 -w 2 --iters 10
 
-# delete the job when done
-runai training delete nccl-single-node -p nccl-benchmarking
+# delete when done
+runai training mpi delete nccl-within-rack -p nccl-benchmarking

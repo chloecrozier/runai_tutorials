@@ -36,7 +36,7 @@ Or create it in the Run:ai UI under **Credentials > New Credential > Docker Regi
 ```bash
 runai project set nccl-benchmarking
 
-# single-node (4 GPU)
+# single-node (4 GPU) — use `mpi/distributed_within_rack.sh` for multi-node jobs
 runai training submit nccl-single-node \
   -p nccl-benchmarking \
   -i $REGISTRY/runai-nccl-pytorch-26.01:latest \
