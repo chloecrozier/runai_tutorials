@@ -1,0 +1,21 @@
+runai training pytorch submit nccl-within-rack \
+  -p nccl-benchmarking \
+  -i nvcr.io/nvidia/pytorch:26.01-py3 \
+  -g 4 \
+  --workers 2 \
+  --large-shm \
+  --capability IPC_LOCK \
+  --extended-resource rdma/rdma_shared_device_a=1 \
+  --node-pools default \
+  -e NCCL_DEBUG=INFO \
+  -e NCCL_CUMEM_ENABLE=0 \
+  -e NCCL_IB_HCA=mlx5_0,mlx5_1,mlx5_4,mlx5_5 \
+  -- bash -c 'echo aW1wb3J0IHRvcmNoCmltcG9ydCB0b3JjaC5kaXN0cmlidXRlZCBhcyBkaXN0CmltcG9ydCB0aW1lCmltcG9ydCBvcwoKZGlzdC5pbml0X3Byb2Nlc3NfZ3JvdXAoYmFja2VuZD0nbmNjbCcpCmxvY2FsX3JhbmsgPSBpbnQob3MuZW52aXJvbi5nZXQoJ0xPQ0FMX1JBTksnLCAwKSkKdG9yY2guY3VkYS5zZXRfZGV2aWNlKGxvY2FsX3JhbmspCnJhbmsgPSBkaXN0LmdldF9yYW5rKCkKd29ybGQgPSBkaXN0LmdldF93b3JsZF9zaXplKCkKCmlmIHJhbmsgPT0gMDoKICAgIG5ub2RlcyA9IG9zLmVudmlyb24uZ2V0KCdQRVRfTk5PREVTJywgJz8nKQogICAgbnByb2MgPSBvcy5lbnZpcm9uLmdldCgnUEVUX05QUk9DX1BFUl9OT0RFJywgJz8nKQogICAgcHJpbnQoJ1dvcmxkIHNpemU6IHt9IHwgTm9kZXM6IHt9IHwgR1BVcy9ub2RlOiB7fScuZm9ybWF0KHdvcmxkLCBubm9kZXMsIG5wcm9jKSkKICAgIHByaW50KCd7Oj4xMnN9ICB7Oj4xMHN9ICB7Oj4xMnN9Jy5mb3JtYXQoJ1NpemUnLCAnVGltZSAobXMpJywgJ0J1c0JXIChHQi9zKScpKQogICAgcHJpbnQoJy0nICogNDApCgpmb3IgbmJ5dGVzIGluIFs4LCAyNTYsIDgxOTIsIDI2MjE0NCwgODM4ODYwOCwgNjcxMDg4NjQsIDI2ODQzNTQ1NiwgMTA3Mzc0MTgyNF06CiAgICBidWYgPSB0b3JjaC5vbmVzKG5ieXRlcyAvLyA0LCBkZXZpY2U9J2N1ZGE6e30nLmZvcm1hdChsb2NhbF9yYW5rKSkKICAgIGZvciBfIGluIHJhbmdlKDUpOgogICAgICAgIGRpc3QuYWxsX3JlZHVjZShidWYpCiAgICB0b3JjaC5jdWRhLnN5bmNocm9uaXplKCkKICAgIHQgPSB0aW1lLnRpbWUoKQogICAgZm9yIF8gaW4gcmFuZ2UoMjApOgogICAgICAgIGRpc3QuYWxsX3JlZHVjZShidWYpCiAgICB0b3JjaC5jdWRhLnN5bmNocm9uaXplKCkKICAgIGVsYXBzZWQgPSAodGltZS50aW1lKCkgLSB0KSAvIDIwCiAgICBidXNidyA9IG5ieXRlcyAqIDIgKiAod29ybGQgLSAxKSAvIHdvcmxkIC8gZWxhcHNlZCAvIDFlOQogICAgaWYgcmFuayA9PSAwOgogICAgICAgIHByaW50KCd7Oj4xMmR9ICB7Oj4xMC4zZn0gIHs6PjEyLjJmfScuZm9ybWF0KG5ieXRlcywgZWxhcHNlZCAqIDEwMDAsIGJ1c2J3KSkKCmRpc3QuZGVzdHJveV9wcm9jZXNzX2dyb3VwKCkK | base64 -d > /tmp/nccl_bench.py && torchrun --nproc_per_node=$PET_NPROC_PER_NODE --nnodes=$PET_NNODES --node_rank=$PET_NODE_RANK --master_addr=$PET_MASTER_ADDR --master_port=$PET_MASTER_PORT /tmp/nccl_bench.py'
+    # This is the nccl_benchmark.py script that is run in the pod
+
+# check status and follow logs
+runai training pytorch describe nccl-within-rack -p nccl-benchmarking
+runai training pytorch logs nccl-within-rack -p nccl-benchmarking --follow
+
+# delete the job when done
+runai training pytorch delete nccl-within-rack -p nccl-benchmarking
