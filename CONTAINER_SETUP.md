@@ -73,11 +73,17 @@ docker buildx build --platform linux/arm64 -t $REGISTRY/runai-nccl-pytorch-26.01
 
 Push the built image:
 
+
 ```bash
-docker push $REGISTRY/runai-nccl-pytorch-26.01:latest
+source .env
+docker buildx build --platform linux/arm64 -t $REGISTRY/runai-nccl-pytorch-26.01:latest --load .
 ```
 
-Ensure the RunAI cluster can pull from this registry (imagePullSecrets if private).
+**Why `--platform linux/arm64`?** The DGX nodes use Grace Hopper (ARM64/aarch64) CPUs.
+Omitting `--platform` may produce an amd64 image (e.g. if Docker Desktop uses Rosetta),
+which will fail at pull time with _"no match for platform in manifest"_.
+Use `--load` to import into the local Docker image store, or replace with `--push` to
+push directly to the registry (skipping Step 3).
 
 ---
 
