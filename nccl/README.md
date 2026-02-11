@@ -2,6 +2,8 @@
 
 Simple guide for running NCCL tests with RunAI CLI.
 
+**Custom image (PyTorch + OpenMPI + nccl-tests + sshd):** see [CONTAINER_SETUP.md](CONTAINER_SETUP.md) for building the container and running multi-node MPI/PyTorch jobs.
+
 ## Setup
 
 List available projects:
