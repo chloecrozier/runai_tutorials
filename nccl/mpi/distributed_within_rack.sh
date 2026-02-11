@@ -1,6 +1,4 @@
-# 2-node, 8-GPU NCCL test (4 GPUs per node, nodes within same rack)
-# launcher = orchestrator (no GPUs), workers = compute nodes
-# --workers 2 = 2 compute nodes x 4 GPUs = 8 GPUs total
+# create the workload
 runai training mpi submit nccl-within-rack \
   -p nccl-benchmarking \
   -i nvcr.io/r2kuatviomfd/runai-nccl-pytorch-26.01:latest \
@@ -23,7 +21,7 @@ cat /etc/mpi/hostfile
 ssh $(sed -n '1p' /etc/mpi/hostfile | awk '{print $1}') hostname
 ssh $(sed -n '2p' /etc/mpi/hostfile | awk '{print $1}') hostname
 
-# 8-GPU all-reduce benchmark via mpirun
+# 8-GPU all-reduce benchmark
 mpirun --allow-run-as-root \
   --hostfile /etc/mpi/hostfile \
   -np 8 \

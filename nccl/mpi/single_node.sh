@@ -12,8 +12,7 @@ runai training standard describe nccl-single-node
 # exec into the pod
 runai training exec nccl-single-node -p nccl-benchmarking -it -- bash
 
-# 4‑GPU NCCL all‑reduce bandwidth/latency benchmark with debug logging
-# parameters: min/max bytes = 8-1G; size multiplier = 2; GPUs per rank = 1; warmup iters = 2; measured iters = 10; validation checks = 10 
+# 4-GPU all-reduce benchmark
 mpirun -np 4 \
   --allow-run-as-root \
   -x NCCL_DEBUG=INFO \
