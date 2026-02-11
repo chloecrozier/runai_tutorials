@@ -1,38 +1,60 @@
-# NCCL Benchmarking Tests
+# NCCL Benchmarking
 
-Simple guide for running NCCL tests with RunAI CLI.
+## 1. Build & push the container
 
-**Custom image (PyTorch + OpenMPI + nccl-tests + sshd):** see [CONTAINER_SETUP.md](CONTAINER_SETUP.md) for building the container and running multi-node MPI/PyTorch jobs.
-
-## Setup
-
-List available projects:
 ```bash
-runai project list
+# from nccl/containers/
+source ../../.env
+docker login nvcr.io          # user: $oauthtoken  pass: <NGC API key>
+docker buildx build --platform linux/arm64 --provenance=false \
+  -t $REGISTRY/runai-nccl-pytorch-26.01:latest --push .
 ```
 
-Set your project:
+> `--platform linux/arm64` is required — the DGX nodes are ARM64 (Grace).
+
+### Verify image (optional)
+
+```bash
+bash /workspace/verify_image.sh          # expects aarch64
+bash /workspace/verify_image.sh x86_64   # if running on x86
+```
+
+## 2. Create the registry secret (once)
+
+```bash
+kubectl create secret docker-registry nvcr-creds \
+  -n runai-nccl-benchmarking \
+  --docker-server=nvcr.io \
+  --docker-username='$oauthtoken' \
+  --docker-password='<NGC_API_KEY>'
+```
+
+Or create it in the Run:ai UI under **Credentials > New Credential > Docker Registry**.
+
+## 3. Run a job
+
 ```bash
 runai project set nccl-benchmarking
+
+# single-node (4 GPU)
+runai training submit nccl-single-node \
+  -p nccl-benchmarking \
+  -i $REGISTRY/runai-nccl-pytorch-26.01:latest \
+  -g 4 --node-pools default \
+  -- bash -c 'sleep 1d'
 ```
 
-## Check Running Workloads
+## 4. Exec in and run NCCL tests
 
-List all running workloads in the current project:
 ```bash
-runai workload list
+runai training exec nccl-single-node -p nccl-benchmarking -it -- bash
+
+# 4-GPU all-reduce benchmark
+all_reduce_perf -b 8 -e 1G -f 2 -g 4 -w 2 --iters 10
 ```
 
-## Check Available GPUs
+## 6. Clean up
 
-See available GPUs in the cluster:
 ```bash
-runai node list
+runai training delete nccl-single-node -p nccl-benchmarking
 ```
-
-For detailed JSON output:
-```bash
-runai node list --json
-```
-
-Note: Rack info can be inferred from node naming convention (e.g., `s03-*` and `s04-*` are different racks).
