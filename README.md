@@ -192,6 +192,7 @@ mpirun -np 4 \
   -b 8 -e 1G -f 2 -g 1 -w 2 --iters 10 -c 10
 ```
 
+
 Success looks like:
 
 - Four ranks are started.
@@ -275,6 +276,7 @@ mpirun -np 8 \
   "$NCCL_TEST_BIN" \
   -b 8 -e 1G -f 2 -g 1 -w 2 --iters 10 -c 10
 ```
+![Run:ai multi-node describe output](images/img11.png)
 
 If the test cannot launch ranks on the remote pod, the image is missing the site-required MPI launch setup. Use the site NCCL test image or the MPI-enabled workload pattern approved for the cluster.
 
@@ -306,8 +308,6 @@ runai inference distributed describe nccl-three-node \
   --events \
   --pod-limit 20
 ```
-
-![Run:ai multi-node describe output](images/img11.png)
 
 In the UI, open **Workload manager > Workloads** and select the workload to see status, events, metrics, and logs.
 
