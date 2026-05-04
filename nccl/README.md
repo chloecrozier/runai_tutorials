@@ -5,7 +5,7 @@
 ```bash
 # from nccl/containers/
 source ../../.env
-docker login nvcr.io          # user: $oauthtoken  pass: <NGC API key>
+docker login nvcr.io # user: $oauthtoken  pass: <NGC API key>
 docker buildx build --platform linux/arm64 --provenance=false \
   -t $REGISTRY/runai-nccl-pytorch-26.01:latest --push .
 ```
@@ -15,8 +15,8 @@ docker buildx build --platform linux/arm64 --provenance=false \
 ### Verify image (optional)
 
 ```bash
-bash /workspace/verify_image.sh          # expects aarch64
-bash /workspace/verify_image.sh x86_64   # if running on x86
+bash /workspace/verify_image.sh # expects aarch64
+bash /workspace/verify_image.sh x86_64 # if running on x86
 ```
 
 ## 2. Create the registry secret (once)
